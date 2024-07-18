@@ -1,0 +1,28 @@
+version: '3.2'
+
+services:
+  golang-api-malla:
+    container_name: golang-malla-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - 8223:8223
+    expose:
+      - 8223:8223
+    networks:
+      - umag_network
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.go_malla_backend.entrypoints=web,websecure"
+      - "traefik.http.services.go_malla_backend.loadbalancer.server.port=8223"
+      - "traefik.http.routers.go_malla_backend.service=go_malla_backend"
+      - "traefik.http.routers.go_malla_backend.rule=Host(`plan.pichimalen.org`) && (PathPrefix(`/api/v1/plan`) || PathPrefix(`/api/v1/mallas/swagger`))"      
+      - "traefik.http.routers.go_malla_backend.tls=true"
+
+networks:
+  umag_network:
+    external: true
